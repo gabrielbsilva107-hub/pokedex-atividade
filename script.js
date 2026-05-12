@@ -1,33 +1,55 @@
-const btnbuscar = document.getElementById('btnBuscar');
+const btnBuscar = document.getElementById('btnBuscar');
 const campoBusca = document.getElementById('campoBusca');
 const resultadoArea = document.getElementById('resultado');
 const msgErro = document.getElementById('msgErro');
 
-function realizarBuscar() {
+function realizarBusca() {
+    const nome = campoBusca.value.toLowerCase().trim();
 
-    const nome = campoBusca.Value.toLowerCase().trim();
     if (nome === "") {
-        alert("Por favor, digite um nome, seu verme!")
+        alert("Por favor, digite um nome!");
         return;
     }
-    const url = `https://pokeapi.co/api/v2/pokemom${nome}`;
+
+    const url = `https://pokeapi.co/api/v2/pokemon/${nome}`;
+
     fetch(url)
         .then(response => {
-            if (!responde.ok) {
+            if (!response.ok) {
                 throw new Error('Pokémon inexistente');
             }
-            return responde.json();
-
+            return response.json();
         })
         .then(data => {
-            msgErro.classList.add('d-none')
+            // Esconde a mensagem de erro caso ela esteja visível
+            msgErro.classList.add('d-none');
+
+            // Preenche os dados conforme os campos do JSON da atividade
+            document.getElementById('pokeNome').textContent = data.name;
+            document.getElementById('pokeId').textContent = data.id;
+            document.getElementById('pokeAltura').textContent = data.height;
+            document.getElementById('pokePeso').textContent = data.weight;
+
+            // Pega o nome do primeiro tipo do array
+            document.getElementById('pokeTipo').textContent = data.types[0].type.name;
+
+
+            document.getElementById('pokeImg').src = data.sprites.front_default;
+
+
+            resultadoArea.classList.remove('d-none');
         })
-
-    document.getElementById('pokeNome').textcontent = data.name
-    document.getElementById('pokeId').textcontent = data.id;
-    document.getElementById('pokeAltura').textcontent = data.heigth;
-    document.getElementById('pokePeso').textcontent = data.weingth;
-    document.getElementById('pokeTipo').textcontent = data.types[0].type.name;
-    document.getElementById('pokeImg').src = data.sprites.front_default;
-
+        .catch(error => {
+            console.error("Erro na busca:", error);
+            resultadoArea.classList.add('d-none');
+            msgErro.classList.remove('d-none');
+        });
 }
+
+btnBuscar.addEventListener('click', realizarBusca);
+
+campoBusca.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        realizarBusca();
+    }
+});
